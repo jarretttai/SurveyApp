@@ -1,0 +1,95 @@
+import React from "react";
+import { makeStyles, TextField, IconButton, Grid } from "@material-ui/core";
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import ClearIcon from '@material-ui/icons/Clear';
+
+import styles from "../styles/QuestionStyle";
+
+
+const useStyles = makeStyles(styles);
+
+function Option(props) {
+
+  const classes = useStyles();
+
+  const deleteItself = e => {
+    props.deleteOption(props.index, e);
+  }
+
+  const handleNameChange = e => {
+    let newOpt = props.option;
+    newOpt['content'] = e.target.value;
+    props.updateOption(props.index, newOpt);
+  }
+
+  const handleJumpIndexChange = e => {
+    let newOpt = props.option;
+    // newOpt['cascadeIndex'] = e.target.value;
+    newOpt['cascadeQstnId'] = e.target.value;
+    props.updateOption(props.index, newOpt);
+  }
+
+  return (  
+    <Grid container direction="row" >
+      <Grid item>
+        <CheckBoxOutlineBlankIcon className={classes.optionIcon} />
+      </Grid>
+      <Grid item>
+        <TextField 
+        label={"option "+(props.index+1)}
+        value={props.option.content}
+        onChange={handleNameChange}
+        className={classes.optionInput}
+        InputLabelProps={{
+          shrink: true,
+        }}
+        />
+      </Grid>
+      <Grid item>
+        <IconButton onClick={deleteItself} className={classes.optionDelete}>
+          <ClearIcon  />
+        </IconButton>
+      </Grid>
+    </Grid>
+  );
+}
+
+
+
+
+//multi choices
+export default function CbQuestion(props) {
+
+
+  const updateOptions = (index, opt) => {
+    let newOptions = props.qInfo.options.slice();
+    newOptions[index] = opt;
+    props.updateOpt(newOptions);
+  }
+
+  const deleteOptions = (index, e) => {
+    let newOptions = props.qInfo.options.slice();
+    newOptions.splice(index, 1);
+    for(let i=index; i<newOptions.length; i++) {
+      newOptions[i].optId--;
+    }
+    props.updateOpt(newOptions);
+  }
+
+  // console.log(props.qInfo.options);
+  return (
+    <React.Fragment>
+      {
+        props.qInfo.options.map( (opt, index) => (
+          <Option 
+          key={index} 
+          index={index} 
+          option={opt} 
+          updateOption={updateOptions}
+          deleteOption={deleteOptions}
+          />
+          ))
+      }
+    </React.Fragment>
+  );
+}
